@@ -4,9 +4,14 @@ import org.bukkit.Location
 import org.bukkit.World
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
+import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerRespawnEvent
 import org.bukkit.plugin.java.JavaPlugin
+import net.kyori.adventure.text.Component
+import io.papermc.paper.ban.BanListType
+import org.bukkit.Bukkit
+import java.time.Instant
 
 class Netherstart : JavaPlugin(), Listener {
 
@@ -23,7 +28,7 @@ class Netherstart : JavaPlugin(), Listener {
     fun onPlayerJoin(event: PlayerJoinEvent) {
         val player = event.player
 
-        // Only teleport if this is the player's first join
+        // Always teleport to Nether on join (for first-timers and unbanned players)
         if (!player.hasPlayedBefore()) {
             val netherWorld = server.worlds.firstOrNull { it.environment == World.Environment.NETHER }
 
@@ -37,6 +42,26 @@ class Netherstart : JavaPlugin(), Listener {
                 logger.warning("Nether world not found! Make sure allow-nether is true in server.properties")
             }
         }
+    }
+
+    @EventHandler
+    fun onPlayerDeath(event: PlayerDeathEvent) {
+        val player = event.player
+
+        // Get the correct ban‐list for profiles
+        val banList = Bukkit.getBanList(BanListType.PROFILE)
+
+        // Add a ban: target = profile, reason, expires = null (permanent), source
+        banList.addBan(
+            player.playerProfile,       // T target
+            "You died!",                // reason
+            null as Instant?,           // expires (null = permanent) SPECIFY as INSTANT PLEASE GOD
+            "Server"                    // source
+        )
+
+        player.kick(Component.text("You died and were banned!"))
+
+        logger.info("${player.name} has been banned for dying")
     }
 
     @EventHandler
