@@ -1,0 +1,6 @@
+name: Netherstart
+version: 1.0.0
+main: me.ray.netherstart.Netherstart
+api-version: '1.21'
+author: Ray
+description: Spawns players in the Nether
