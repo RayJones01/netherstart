@@ -5,6 +5,7 @@ import org.bukkit.World
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.event.player.PlayerRespawnEvent
 import org.bukkit.plugin.java.JavaPlugin
 
 class Netherstart : JavaPlugin(), Listener {
@@ -35,6 +36,20 @@ class Netherstart : JavaPlugin(), Listener {
             } else {
                 logger.warning("Nether world not found! Make sure allow-nether is true in server.properties")
             }
+        }
+    }
+
+    @EventHandler
+    fun onPlayerRespawn(event: PlayerRespawnEvent) {
+        val player = event.player
+        val netherWorld = server.worlds.firstOrNull { it.environment == World.Environment.NETHER }
+
+        if (netherWorld != null) {
+            val spawnLocation = getSafeNetherSpawn(netherWorld)
+            event.respawnLocation = spawnLocation
+            logger.info("${player.name} respawned in the Nether")
+        } else {
+            logger.warning("Nether world not found for respawn!")
         }
     }
 
