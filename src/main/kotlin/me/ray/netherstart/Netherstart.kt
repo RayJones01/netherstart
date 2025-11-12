@@ -1,18 +1,25 @@
 package me.ray.netherstart
 
+import io.papermc.paper.ban.BanListType
+import io.papermc.paper.datacomponent.DataComponentTypes
+import io.papermc.paper.datacomponent.item.ItemLore
+import net.kyori.adventure.key.Key
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
+import org.bukkit.Bukkit
 import org.bukkit.Location
+import org.bukkit.Material
 import org.bukkit.World
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerRespawnEvent
+import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.java.JavaPlugin
-import net.kyori.adventure.text.Component
-import io.papermc.paper.ban.BanListType
-import org.bukkit.Bukkit
 import java.time.Instant
 
+@Suppress("UnstableApiUsage")
 class Netherstart : JavaPlugin(), Listener {
 
     override fun onEnable() {
@@ -53,10 +60,10 @@ class Netherstart : JavaPlugin(), Listener {
 
         // Add a ban: target = profile, reason, expires = null (permanent), source
         banList.addBan(
-            player.playerProfile,       // T target
-            "You died!",                // reason
-            null as Instant?,           // expires (null = permanent) SPECIFY as INSTANT PLEASE GOD
-            "Server"                    // source
+            player.playerProfile,
+            "Your soul belongs to the Nether",
+            null as Instant?,
+            "NetherStart"
         )
 
         player.kick(Component.text("You died and were banned!"))
@@ -107,5 +114,21 @@ class Netherstart : JavaPlugin(), Listener {
         }
 
         return safeLocation
+    }
+
+    fun getSoulTotem(): ItemStack {
+        val soulTotem = ItemStack.of(Material.TOTEM_OF_UNDYING)
+
+        soulTotem.setData(DataComponentTypes.ITEM_MODEL, Key.key("ray", "soul_totem"))
+        soulTotem.setData(DataComponentTypes.ITEM_NAME, Component.text("Soul Totem", NamedTextColor.AQUA))
+        soulTotem.setData(DataComponentTypes.MAX_STACK_SIZE, 1)
+        soulTotem.setData(DataComponentTypes.LORE, ItemLore.lore(
+            listOf(
+                Component.text("Used to save a soul...", NamedTextColor.DARK_PURPLE),
+                Component.text("/revive <player>", NamedTextColor.GOLD)
+            )
+        ))
+
+        return soulTotem
     }
 }
